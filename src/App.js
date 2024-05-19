@@ -36,7 +36,6 @@ function App() {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user" };
       setMessages([...messages, newMessage]);
-      scrollToBottom();
       if (testSetting === "free-form-prompting") {
         axios
           .post("/serve/response/", {
@@ -55,7 +54,6 @@ function App() {
                   sender: "bot",
                 },
               ]);
-              scrollToBottom();
             }, 1000);
           })
           .catch((error) => {
