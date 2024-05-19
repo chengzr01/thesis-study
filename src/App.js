@@ -8,6 +8,9 @@ function App() {
   const [input, setInput] = useState("");
   const [selectedApp, setSelectedApp] = useState("gmail");
   const [testSetting, setTestSetting] = useState("free-form-prompting");
+  const [testState, setTestState] = useState("unfinished");
+  const [epochNumber, setEpochNumber] = useState(0);
+  const [trialNumber, setTrialNumber] = useState(1);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -18,6 +21,10 @@ function App() {
     setSelectedApp(event.target.value);
   };
 
+  const handleTrialChange = (event) => {
+    setTrialNumber(event.target.value);
+  };
+
   const handleSettingChange = (event) => {
     setTestSetting(event.target.value);
     const _ = setTimeout(() => {
@@ -25,17 +32,22 @@ function App() {
     });
   };
 
+  const handleReset = () => {
+    setMessages([]);
+  };
+
   const handleSend = () => {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user" };
       setMessages([...messages, newMessage]);
       scrollToBottom();
-      if (testSetting == "free-form-prompting") {
+      if (testSetting === "free-form-prompting") {
         axios
           .post("/serve/response/", {
             motivation_app: selectedApp,
             instruction: input,
             message: [],
+            mode: "finetuned",
           })
           .then((response) => {
             console.log(response.data.data);
@@ -53,66 +65,138 @@ function App() {
           .catch((error) => {
             console.error("There was an error!", error);
           });
-      } else if (testSetting == "original-preference-elicitation") {
-        axios
-          .post("/serve/response/", {
-            motivation_app: selectedApp,
-            instruction: input,
-            message: [],
-          })
-          .then((response) => {
-            console.log(response.data.data);
-            const _ = setTimeout(() => {
-              setMessages((prevMessages) => [
-                ...prevMessages,
-                {
-                  text: response.data.data.response,
-                  sender: "bot",
-                },
-              ]);
-              scrollToBottom();
-            }, 1000);
-          })
-          .catch((error) => {
-            console.error("There was an error!", error);
-          });
-      } else if (testSetting == "finetuned-preference-elicitation") {
-        axios
-          .post("/serve/response/", {
-            motivation_app: selectedApp,
-            instruction: input,
-            message: [],
-          })
-          .then((response) => {
-            console.log(response.data.data);
-            const _ = setTimeout(() => {
-              setMessages((prevMessages) => [
-                ...prevMessages,
-                {
-                  text: response.data.data.response,
-                  sender: "bot",
-                },
-              ]);
-              scrollToBottom();
-            }, 1000);
-          })
-          .catch((error) => {
-            console.error("There was an error!", error);
-          });
+      } else if (testSetting === "original-preference-elicitation") {
+        if (testState === "unfinished") {
+          axios
+            .post("/serve/question/", {
+              motivation_app: selectedApp,
+              instruction: input,
+              message: messages,
+              mode: "original",
+            })
+            .then((response) => {
+              console.log(response.data.data);
+              const _ = setTimeout(() => {
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  {
+                    text: response.data.data.response,
+                    sender: "bot",
+                  },
+                ]);
+                scrollToBottom();
+                let newEpochNumber = epochNumber + 1;
+                setEpochNumber(newEpochNumber);
+                if (newEpochNumber >= trialNumber) {
+                  setTestState("finished");
+                }
+              }, 1000);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        } else {
+          axios
+            .post("/serve/response/", {
+              motivation_app: selectedApp,
+              instruction: input,
+              message: messages,
+              mode: "original",
+            })
+            .then((response) => {
+              console.log(response.data.data);
+              const _ = setTimeout(() => {
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  {
+                    text: response.data.data.response,
+                    sender: "bot",
+                  },
+                ]);
+                scrollToBottom();
+                setTestState("unfinished");
+                setEpochNumber(0);
+              }, 1000);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
+      } else if (testSetting === "finetuned-preference-elicitation") {
+        if (testState === "unfinished") {
+          axios
+            .post("/serve/question/", {
+              motivation_app: selectedApp,
+              instruction: input,
+              message: messages,
+              mode: "finetuned",
+            })
+            .then((response) => {
+              console.log(response.data.data);
+              const _ = setTimeout(() => {
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  {
+                    text: response.data.data.response,
+                    sender: "bot",
+                  },
+                ]);
+                scrollToBottom();
+                let newEpochNumber = epochNumber + 1;
+                setEpochNumber(newEpochNumber);
+                if (newEpochNumber >= trialNumber) {
+                  setTestState("finished");
+                }
+              }, 1000);
+            })
+            .catch((error) => {
+              console.error("There was an error!", error);
+            });
+        } else {
+          axios
+            .post("/serve/response/", {
+              motivation_app: selectedApp,
+              instruction: input,
+              message: messages,
+              mode: "finetuned",
+            })
+            .then((response) => {
+              console.log(response.data.data);
+              const _ = setTimeout(() => {
+                setMessages((prevMessages) => [
+                  ...prevMessages,
+                  {
+                    text: response.data.data.response,
+                    sender: "bot",
+                  },
+                ]);
+                scrollToBottom();
+                setTestState("unfinished");
+                setEpochNumber(0);
+              }, 1000);
+            })
+            .catch((error) => {
+              console.error("There was an error!", error);
+            });
+        }
       }
       setInput("");
     }
   };
 
   return (
-    <div>
+    <div
+      style={{
+        marginTop: "2em",
+        marginBottom: "2em",
+      }}
+    >
       <div
-        className="chatbot"
-        style={{
-          marginTop: "2em",
-          marginBottom: "2em",
-        }}
+        style={{ textAlign: "center", marginTop: "2em", marginBottom: "2em" }}
       >
+        <h1>Preference Elicitation with Language Models</h1>
+      </div>
+      <div className="chatbot">
         <div
           style={{
             display: "flex",
@@ -130,10 +214,10 @@ function App() {
           >
             <option value="free-form-prompting">Free-Form Prompting</option>
             <option value="original-preference-elicitation">
-              Original Preference Elicitation
+              Preference Elicitation Ⅰ
             </option>
             <option value="finetuned-preference-elicitation">
-              Finetuned Preference Elicitation
+              Preference Elicitation Ⅱ
             </option>
           </select>
           <select
@@ -153,6 +237,24 @@ function App() {
             <option value="ms_excel">MS Excel</option>
             <option value="ms_powerpoint">MS PowerPoint</option>
           </select>
+          <select
+            value={trialNumber}
+            onChange={handleTrialChange}
+            style={{
+              paddingTop: "0.5em",
+              paddingBottom: "0.5em",
+            }}
+          >
+            <option value={1}>1</option>
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+          </select>
+          <button
+            onClick={handleReset}
+            style={{ backgroundColor: "white", color: "gray" }}
+          >
+            Reset
+          </button>
         </div>
         <div className="messages">
           {messages.map((msg, index) => (
