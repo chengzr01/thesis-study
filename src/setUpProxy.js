@@ -5,6 +5,7 @@ module.exports = function (app) {
     createProxyMiddleware("/serve", {
       target: "http://118.186.244.221:8000/",
       changeOrigin: true,
+      ws: true,
     })
   );
 };
