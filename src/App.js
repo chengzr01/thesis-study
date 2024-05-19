@@ -13,10 +13,6 @@ function App() {
   const [trialNumber, setTrialNumber] = useState(1);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const handleAppChange = (event) => {
     setSelectedApp(event.target.value);
   };
@@ -84,7 +80,6 @@ function App() {
                     sender: "bot",
                   },
                 ]);
-                scrollToBottom();
                 let newEpochNumber = epochNumber + 1;
                 setEpochNumber(newEpochNumber);
                 if (newEpochNumber >= trialNumber) {
@@ -113,7 +108,6 @@ function App() {
                     sender: "bot",
                   },
                 ]);
-                scrollToBottom();
                 setTestState("unfinished");
                 setEpochNumber(0);
               }, 1000);
@@ -141,7 +135,6 @@ function App() {
                     sender: "bot",
                   },
                 ]);
-                scrollToBottom();
                 let newEpochNumber = epochNumber + 1;
                 setEpochNumber(newEpochNumber);
                 if (newEpochNumber >= trialNumber) {
@@ -170,7 +163,6 @@ function App() {
                     sender: "bot",
                   },
                 ]);
-                scrollToBottom();
                 setTestState("unfinished");
                 setEpochNumber(0);
               }, 1000);
