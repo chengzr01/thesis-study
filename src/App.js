@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import Message from "./Message";
 import axios from "axios";
 
@@ -23,7 +23,7 @@ function App() {
 
   const handleSettingChange = (event) => {
     setTestSetting(event.target.value);
-    const _ = setTimeout(() => {
+    setTimeout(() => {
       setMessages([]);
     });
   };
@@ -46,7 +46,7 @@ function App() {
           })
           .then((response) => {
             console.log(response.data.data);
-            const _ = setTimeout(() => {
+            setTimeout(() => {
               setMessages((prevMessages) => [
                 ...prevMessages,
                 {
@@ -70,7 +70,7 @@ function App() {
             })
             .then((response) => {
               console.log(response.data.data);
-              const _ = setTimeout(() => {
+              setTimeout(() => {
                 setMessages((prevMessages) => [
                   ...prevMessages,
                   {
@@ -98,7 +98,7 @@ function App() {
             })
             .then((response) => {
               console.log(response.data.data);
-              const _ = setTimeout(() => {
+              setTimeout(() => {
                 setMessages((prevMessages) => [
                   ...prevMessages,
                   {
@@ -125,7 +125,7 @@ function App() {
             })
             .then((response) => {
               console.log(response.data.data);
-              const _ = setTimeout(() => {
+              setTimeout(() => {
                 setMessages((prevMessages) => [
                   ...prevMessages,
                   {
@@ -153,7 +153,7 @@ function App() {
             })
             .then((response) => {
               console.log(response.data.data);
-              const _ = setTimeout(() => {
+              setTimeout(() => {
                 setMessages((prevMessages) => [
                   ...prevMessages,
                   {
@@ -221,11 +221,15 @@ function App() {
             <option value="gmail">Gmail</option>
             <option value="grammarly">Grammarly</option>
             <option value="amazon">Amazon</option>
-            <option value="google_translate">Google Translate</option>
-            <option value="overleaf">Overleaf</option>
-            <option value="ms_word">MS Word</option>
-            <option value="ms_excel">MS Excel</option>
-            <option value="ms_powerpoint">MS PowerPoint</option>
+            <option value="notion">Notion</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="youtube">Youtube</option>
+            <option value="instagram">Instagram</option>
+            <option value="github">GitHub</option>
+            <option value="wikipedia">Wikipedia</option>
+            <option value="netflix">Netflix</option>
+            <option value="spotify">Spotify</option>
+            <option value="messenger">Messenger</option>
           </select>
           <select
             value={trialNumber}
@@ -235,9 +239,9 @@ function App() {
               paddingBottom: "0.5em",
             }}
           >
-            <option value={1}>1</option>
-            <option value={3}>3</option>
-            <option value={5}>5</option>
+            <option value={1}>1 Trial</option>
+            <option value={3}>3 Trial</option>
+            <option value={5}>5 Trial</option>
           </select>
           <button
             onClick={handleReset}
