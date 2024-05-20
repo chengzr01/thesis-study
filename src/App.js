@@ -10,15 +10,11 @@ function App() {
   const [testSetting, setTestSetting] = useState("free-form-prompting");
   const [testState, setTestState] = useState("unfinished");
   const [epochNumber, setEpochNumber] = useState(0);
-  const [trialNumber, setTrialNumber] = useState(1);
+  const [trialNumber, setTrialNumber] = useState(5);
   const messagesEndRef = useRef(null);
 
   const handleAppChange = (event) => {
     setSelectedApp(event.target.value);
-  };
-
-  const handleTrialChange = (event) => {
-    setTrialNumber(event.target.value);
   };
 
   const handleSettingChange = (event) => {
@@ -36,6 +32,9 @@ function App() {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user" };
       setMessages([...messages, newMessage]);
+      if (input.trim() === "#") {
+        setTestState("finished");
+      }
       if (testSetting === "free-form-prompting") {
         axios
           .post("/serve/response/", {
@@ -60,7 +59,7 @@ function App() {
             console.error("There was an error!", error);
           });
       } else if (testSetting === "original-preference-elicitation") {
-        if (testState === "unfinished") {
+        if (testState === "unfinished" && input.trim() !== "#") {
           axios
             .post("/serve/question/", {
               motivation_app: selectedApp,
@@ -80,7 +79,7 @@ function App() {
                 ]);
                 let newEpochNumber = epochNumber + 1;
                 setEpochNumber(newEpochNumber);
-                if (newEpochNumber >= trialNumber) {
+                if (newEpochNumber >= trialNumber || input.trim() === "#") {
                   setTestState("finished");
                 }
               }, 1000);
@@ -115,7 +114,7 @@ function App() {
             });
         }
       } else if (testSetting === "finetuned-preference-elicitation") {
-        if (testState === "unfinished") {
+        if (testState === "unfinished" && input.trim() !== "#") {
           axios
             .post("/serve/question/", {
               motivation_app: selectedApp,
@@ -135,7 +134,7 @@ function App() {
                 ]);
                 let newEpochNumber = epochNumber + 1;
                 setEpochNumber(newEpochNumber);
-                if (newEpochNumber >= trialNumber) {
+                if (newEpochNumber >= trialNumber || input.trim() === "#") {
                   setTestState("finished");
                 }
               }, 1000);
@@ -170,6 +169,7 @@ function App() {
             });
         }
       }
+
       setInput("");
     }
   };
@@ -230,18 +230,6 @@ function App() {
             <option value="netflix">Netflix</option>
             <option value="spotify">Spotify</option>
             <option value="messenger">Messenger</option>
-          </select>
-          <select
-            value={trialNumber}
-            onChange={handleTrialChange}
-            style={{
-              paddingTop: "0.5em",
-              paddingBottom: "0.5em",
-            }}
-          >
-            <option value={1}>1 Trial</option>
-            <option value={3}>3 Trial</option>
-            <option value={5}>5 Trial</option>
           </select>
           <button
             onClick={handleReset}
